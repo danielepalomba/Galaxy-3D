@@ -14,6 +14,14 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+window.addEventListener('resize', onWindowResize, false)
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    render()
+}
+
 //Create OrbitControls to manage object
 const control = new OrbitControls(camera, renderer.domElement);
 
@@ -205,6 +213,10 @@ function animate() {
     updateOrbit(neptuneOrbit, neptuneOrbitRadius);
 
     stats.update();
+    render();
+}
+
+function render(){
     renderer.render(scene, camera);
 }
 
