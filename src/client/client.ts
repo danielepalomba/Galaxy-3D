@@ -6,6 +6,9 @@ import { GUI } from 'dat.gui';
 //Create Scene
 var scene = new THREE.Scene();
 
+//Istanzia tipo Target
+var lastPlanetClicked: THREE.Object3D<THREE.Object3DEventMap> | null;
+
 //Create camera
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -13,6 +16,7 @@ var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHei
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+window.addEventListener('click', onMouseClick, false);
 
 window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
@@ -22,6 +26,25 @@ function onWindowResize() {
     render()
 }
 
+function onMouseClick(event: MouseEvent) {
+    event.preventDefault();
+    // Calcola la posizione del clic nel sistema di coordinate del canvas
+    var mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    //Crea un raycaster
+    var raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+    //oggetti intersecati dal raycaster
+    var intersects = raycaster.intersectObjects(scene.children, true);
+    console.log(intersects)
+    for (var i = 0; i < intersects.length; i++) {
+        if (intersects[i].object.type === "Mesh" && intersects[i].object.name!="sun" && intersects[i].object.name!="" ) {
+            lastPlanetClicked = intersects[i].object ;
+            break;
+        }
+    }
+}
 //Create OrbitControls to manage object
 const control = new OrbitControls(camera, renderer.domElement);
 
@@ -83,7 +106,6 @@ var neptuneTexture = textureLoader.load('img/neptune.jpg');
 
 //Load galaxy
 var backgroundTexture = textureLoader.load('img/galaxy2.jpg');
-
 var cubeGeometry = new THREE.BoxGeometry(2000, 2000, 2000);
 var cubeMaterial = new THREE.MeshBasicMaterial({ map: backgroundTexture, side: THREE.BackSide });
 var backgroundCube = new THREE.Mesh(cubeGeometry, cubeMaterial);
@@ -103,6 +125,15 @@ saturn.material.map = saturnTexture;
 uranus.material.map = uranusTexture;
 neptune.material.map = neptuneTexture;
 
+//Nomi pianeti per controllo click
+sun.name="sun";
+earth.name="earth";
+mars.name="mars";
+venus.name="venus";
+jupiter.name="jupiter";
+saturn.name="saturn"
+uranus.name="uranus"
+neptune.name="neptune"
 // Add planets to Scene
 scene.add(mercury, venus, earth, mars, jupiter, saturn, uranus, neptune);
 
@@ -173,6 +204,11 @@ function showAllOrbits() {
 
 const gui = new GUI();
 const folder = gui.addFolder('Orbits');
+const comandi = gui.addFolder('Comandi');
+gui.domElement.style.fontSize = 'large';
+comandi.domElement.style.fontSize = 'large';
+folder.domElement.style.fontSize = 'large';
+comandi.add({ "Smetti di seguire": function() {lastPlanetClicked=null}}, 'Smetti di seguire')
 
 function toggleOrbitVisibility(show: boolean): void {
     const orbits = [mercuryOrbit, venusOrbit, earthOrbit, marsOrbit, jupiterOrbit, saturnOrbit, uranusOrbit, neptuneOrbit];
@@ -212,6 +248,12 @@ function animate() {
     updateOrbit(uranusOrbit, uranusOrbitRadius);
     updateOrbit(neptuneOrbit, neptuneOrbitRadius);
 
+    if(lastPlanetClicked!=null){
+    camera.lookAt(sun.position)
+    var WHERE = new THREE.Vector3(-lastPlanetClicked.position.x, lastPlanetClicked.position.y+20,-lastPlanetClicked.position.z)
+    WHERE= WHERE.multiplyScalar(-1.5)
+    camera.position.set(WHERE.x,WHERE.y*-1,WHERE.z); 
+}
     stats.update();
     render();
 }
