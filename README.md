@@ -16,7 +16,7 @@ Il progetto ha lo scopo di fornire una visualizzazione animata e interattiva del
 - **Webpack**
 
 ## Istruzioni per l'Installazione e l'Esecuzione
-
+**Requisiti:** è necessario aver installato sul proprio computer, node.js.
 1. **Clona il Repository:**
    ```bash
     git clone https://github.com/danielepalomba/Galaxy-3D.git
