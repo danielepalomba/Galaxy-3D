@@ -10,7 +10,7 @@ var scene = new THREE.Scene();
 var lastPlanetClicked: THREE.Object3D<THREE.Object3DEventMap> | null;
 
 var stars = new THREE.Group();
-var starsDir: THREE.Vector3Like[]= [];
+var starsDir: THREE.Vector3[]= [];
 //Create camera
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
