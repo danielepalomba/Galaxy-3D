@@ -9,6 +9,8 @@ var scene = new THREE.Scene();
 //Istanzia tipo Target
 var lastPlanetClicked: THREE.Object3D<THREE.Object3DEventMap> | null;
 
+var stars = new THREE.Group();
+var starsDir: THREE.Vector3[]= [];
 //Create camera
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -199,8 +201,6 @@ function showAllOrbits() {
 }
 
 function addStars(numStars: number, radius: number) {
-    const stars = new THREE.Group();
-
     const starGeometry = new THREE.SphereGeometry(0.1, 16, 16);
     const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -217,11 +217,41 @@ function addStars(numStars: number, radius: number) {
             r * Math.sin(phi) * Math.sin(theta),
             r * Math.cos(phi)
         );
-
+        //Fissa una direzione random iniziale per ogni stella
+        starsDir[i]= randomDirection(["x","y","z","-x","-y","-z"]);
         stars.add(star);
     }
 
     scene.add(stars);
+}
+
+function updateStars(){
+    for (let i = 0; i < stars.children.length; i++) {
+        var star= stars.children[i];
+        star.position.add(starsDir[i]);
+
+}
+}
+//Scelta Random tra le possibili direzioni
+function randomDirection(directions:Array<String>) {
+    var dir = directions[Math.floor(Math.random()*directions.length)];
+    var force=0.01;
+    switch (dir) {
+        case "x":
+            return new THREE.Vector3(force,0,0);
+        case "y":
+            return new THREE.Vector3(0,force,0);
+        case "z":
+            return new THREE.Vector3(0,0,force);
+        case "-x":
+            return new THREE.Vector3(force*-1,0,0);
+        case "-y":
+            return new THREE.Vector3(0,force*-1,0);
+        case "-z":
+            return new THREE.Vector3(0,0,force*-1);
+        default:
+            return new THREE.Vector3(0,0,0);
+    }
 }
 
 const gui = new GUI();
@@ -271,6 +301,9 @@ function animate() {
     updateOrbit(saturnOrbit, saturnOrbitRadius);
     updateOrbit(uranusOrbit, uranusOrbitRadius);
     updateOrbit(neptuneOrbit, neptuneOrbitRadius);
+
+
+    updateStars();
 
     if(lastPlanetClicked!=null){
     camera.lookAt(sun.position)
