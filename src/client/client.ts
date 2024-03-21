@@ -217,8 +217,8 @@ function addStars(numStars: number, radius: number) {
             r * Math.sin(phi) * Math.sin(theta),
             r * Math.cos(phi)
         );
-        //Fissa una direzione random iniziale per ogni stella
-        starsDir[i]= randomDirection(["x","y","z","-x","-y","-z"]);
+        //Get a random starting direction
+        starsDir[i]= randomDirection();
         stars.add(star);
     }
 
@@ -232,26 +232,15 @@ function updateStars(){
 
 }
 }
-//Scelta Random tra le possibili direzioni
-function randomDirection(directions:Array<String>) {
-    var dir = directions[Math.floor(Math.random()*directions.length)];
+
+//Get a random Verctor3 as Direction
+function randomDirection() {
     var force=0.01;
-    switch (dir) {
-        case "x":
-            return new THREE.Vector3(force,0,0);
-        case "y":
-            return new THREE.Vector3(0,force,0);
-        case "z":
-            return new THREE.Vector3(0,0,force);
-        case "-x":
-            return new THREE.Vector3(force*-1,0,0);
-        case "-y":
-            return new THREE.Vector3(0,force*-1,0);
-        case "-z":
-            return new THREE.Vector3(0,0,force*-1);
-        default:
-            return new THREE.Vector3(0,0,0);
-    }
+
+    var minforce= force*-1;
+    return new THREE.Vector3(Math.random()*(force-minforce)+minforce
+                            ,Math.random()*(force-minforce)+minforce
+                            ,Math.random()*(force-minforce)+minforce);
 }
 
 const gui = new GUI();
