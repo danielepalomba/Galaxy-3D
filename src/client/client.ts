@@ -15,6 +15,7 @@ var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHei
 //Create and set a Render
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 window.addEventListener('click', onMouseClick, false);
 
@@ -104,13 +105,8 @@ var saturnTexture = textureLoader.load('img/saturn.jpg');
 var uranusTexture = textureLoader.load('img/uranus.jpg');
 var neptuneTexture = textureLoader.load('img/neptune.jpg');
 
-//Load galaxy
-var backgroundTexture = textureLoader.load('img/galaxy2.jpg');
-var cubeGeometry = new THREE.BoxGeometry(2000, 2000, 2000);
-var cubeMaterial = new THREE.MeshBasicMaterial({ map: backgroundTexture, side: THREE.BackSide });
-var backgroundCube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-
-scene.add(backgroundCube);
+//Load galaxy texture
+var backgroundTexture = textureLoader.load('img/space.png');
 
 scene.background = backgroundTexture;
 
@@ -202,13 +198,39 @@ function showAllOrbits() {
     }
 }
 
+function addStars(numStars: number, radius: number) {
+    const stars = new THREE.Group();
+
+    const starGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+    const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    for (let i = 0; i < numStars; i++) {
+        const star = new THREE.Mesh(starGeometry, starMaterial);
+
+        // Genera posizioni casuali per le stelle all'interno del volume specificato dal raggio
+        const phi = Math.random() * Math.PI * 2;
+        const theta = Math.random() * Math.PI * 2;
+        const r = Math.random() * radius;
+
+        star.position.set(
+            r * Math.sin(phi) * Math.cos(theta),
+            r * Math.sin(phi) * Math.sin(theta),
+            r * Math.cos(phi)
+        );
+
+        stars.add(star);
+    }
+
+    scene.add(stars);
+}
+
 const gui = new GUI();
 const folder = gui.addFolder('Orbits');
-const comandi = gui.addFolder('Comandi');
+const comandi = gui.addFolder('Command');
 gui.domElement.style.fontSize = 'large';
 comandi.domElement.style.fontSize = 'large';
 folder.domElement.style.fontSize = 'large';
-comandi.add({ "Smetti di seguire": function() {lastPlanetClicked=null}}, 'Smetti di seguire')
+comandi.add({ "Stop following": function() {lastPlanetClicked=null}}, 'Stop following')
 
 function toggleOrbitVisibility(show: boolean): void {
     const orbits = [mercuryOrbit, venusOrbit, earthOrbit, marsOrbit, jupiterOrbit, saturnOrbit, uranusOrbit, neptuneOrbit];
@@ -223,6 +245,8 @@ folder.add({ toggleOrbits: () => toggleOrbitVisibility(false) }, 'toggleOrbits')
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
+
+addStars(10000,500);
 
 // Animate
 function animate() {
